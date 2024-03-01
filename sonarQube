@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     stages {
         stage('Build stage') {
             steps {
@@ -22,11 +23,13 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('Build & SonarQube Analysis') {
+            agent any
             steps {
                 script {
-                    // Run SonarQube Scanner
-                    sh 'sonar-scanner'
+                    withSonarQubeEnv('sonar_qube_server') {
+                        sh 'mvn clean package sonar:sonar'
+                    }
                 }
             }
         }
