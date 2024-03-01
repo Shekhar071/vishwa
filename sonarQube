@@ -1,14 +1,23 @@
-pipeline {
-    agent any
-    stages {
-        stage('Build & SonarQube Analysis') {
+pipeline{
+	agent { label 'slave-2'}
+	stages{
+        stage('Build stage') {
             steps {
-                script {
-                    withSonarQubeEnv('sonar_qube_server') {
-                        sh 'mvn clean package sonar:sonar'
-                    }
-                }
-            }
-        }
-    }
-}
+                echo 'This is a build stage'
+				sh 'sleep 5'
+			}
+		}
+        stage('Push stage') {
+            steps {
+                echo 'This is push stage'
+                sh 'sleep 5'
+			}
+		}
+        stage('Deploy stage') {
+            steps {
+                echo 'This is deploy stage'
+                sh 'sleep 5'
+			}
+		}
+	}
+}	
