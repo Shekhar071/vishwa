@@ -1,32 +1,35 @@
 pipeline {
     agent any
+    
     stages {
-        stage('Build stage') {
+        stage('Checkout') {
             steps {
-                echo 'This is a build stage'
-                sh 'sleep 5'
+                git 'https://github.com/VishwaKalmat/vishwa'
             }
         }
-        stage('Push stage') {
+        
+        stage('Build') {
             steps {
-                echo 'This is push stage'
-                sh 'sleep 5'
+                sh 'mvn clean package'
             }
         }
+
         stage('SonarQube Analysis') {
             steps {
-                script {
-                    def scannerHome = tool 'sonar_qube_scan1'
-                    withSonarQubeEnv('sonar_qube_server1') {
-                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=my_first_project_key"
-                    }
+                withSonarQubeEnv('sonar_qube_server1') {
+                    sh '''
+                        mvn sonar:sonar -Dsonar.projectKey=real project \
+                        -Dsonar.sources=src -Dsonar.java.binaries=target/classes
+                    '''
                 }
             }
         }
-        stage('Deploy stage') {
+
+        stage('Quality Gate') {
             steps {
-                echo 'This is deploy stage'
-                sh 'sleep 5'
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
     }
